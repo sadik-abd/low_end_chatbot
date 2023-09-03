@@ -9,6 +9,7 @@ class ChatModel:
         self.model = torch.jit.load("embeds.pt").to(device)
         self.ques = self.encode(ques)
         self.ans = self.encode(ans)
+        self.s_ans = ans
 
     def mean_pooling(self, model_output, attention_mask):
         token_embeddings = model_output[0]
@@ -32,13 +33,14 @@ class ChatModel:
         return embeddings
     def chat(self, ques):
       answer = ""
-      preds1 = model.predict(ques,self.ques)
-      preds2 = model.predict(ques,self.ans)
+      preds1 = self.predict(ques,self.ques)
+      preds2 = self.predict(ques,self.ans)
       print(max(preds1) > max(preds2))
       if max(preds1) > max(preds2):
-        answer = ans[torch.argmax(preds1)]
+        answer = self.s_ans[torch.argmax(preds1)]
       else:
-        answer = ans[torch.argmax(preds2)]
+        answer = self.s_ans[torch.argmax(preds2)]
+      print(answer)
       return answer
 
     def predict(self, query, docs):
